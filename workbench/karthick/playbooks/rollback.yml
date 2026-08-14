@@ -1,0 +1,22 @@
+---
+- name: Roll back to latest backup
+  hosts: lab_switches
+  gather_facts: false
+  vars:
+    rollback_file: "{{ backup_root }}/latest/{{ inventory_hostname }}.cfg"
+  tasks:
+    - name: Confirm rollback source exists
+      ansible.builtin.stat:
+        path: "{{ rollback_file }}"
+      register: rb_stat
+      delegate_to: localhost
+
+    - name: Stop if rollback file missing
+      ansible.builtin.fail:
+        msg: "Rollback file not found at {{ rollback_file }}"
+      when: not rb_stat.stat.exists
+
+    - name: Apply rollback config
+      cisco.ios.ios_config:
+        src: "{{ rollback_file }}"
+        save_when: changed

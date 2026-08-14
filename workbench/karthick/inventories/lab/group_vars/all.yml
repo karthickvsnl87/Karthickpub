@@ -1,0 +1,12 @@
+---
+ansible_connection: ansible.netcommon.network_cli
+ansible_network_os: cisco.ios.ios
+ansible_user: "{{ lookup('env', 'SW_USER') }}"
+ansible_password: "{{ lookup('env', 'SW_PASS') }}"
+ansible_become: true
+ansible_become_method: enable
+ansible_become_password: "{{ lookup('env', 'SW_ENABLE_PASS') }}"
+
+run_ts: "{{ lookup('env', 'RUN_TS') | default('manual', true) }}"
+backup_root: backups
+rendered_dir: rendered

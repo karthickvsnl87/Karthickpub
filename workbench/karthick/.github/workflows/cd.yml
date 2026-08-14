@@ -1,0 +1,58 @@
+name: Network CD
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: lab-switch-change
+    env:
+      SW_USER: ${{ secrets.SW_USER }}
+      SW_PASS: ${{ secrets.SW_PASS }}
+      SW_ENABLE_PASS: ${{ secrets.SW_ENABLE_PASS }}
+      RUN_TS: ${{ github.run_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          pip install ansible
+          ansible-galaxy collection install -r requirements.yml
+
+      - name: Pre-change backup
+        shell: pwsh
+        run: ansible-playbook playbooks/backup.yml
+
+      - name: Deploy intended config
+        shell: pwsh
+        run: ansible-playbook playbooks/deploy.yml
+
+      - name: Verify intended state
+        id: verify
+        shell: pwsh
+        run: ansible-playbook playbooks/verify.yml
+
+      - name: Rollback if verify fails
+        if: failure()
+        shell: pwsh
+        run: ansible-playbook playbooks/rollback.yml
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-artifacts-${{ github.run_id }}
+          path: |
+            backups/
+            rendered/

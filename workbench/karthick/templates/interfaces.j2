@@ -1,0 +1,18 @@
+{% for p in access_ports %}
+interface {{ p.name }}
+ description {{ p.desc }}
+ switchport mode access
+ switchport access vlan {{ p.vlan }}
+{% if p.spanning_tree_portfast %}
+ spanning-tree portfast
+{% else %}
+ no spanning-tree portfast
+{% endif %}
+{% endfor %}
+
+{% for t in trunk_ports %}
+interface {{ t.name }}
+ description {{ t.desc }}
+ switchport mode trunk
+ switchport trunk allowed vlan {{ t.allowed_vlans }}
+{% endfor %}

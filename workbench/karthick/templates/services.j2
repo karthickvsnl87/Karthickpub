@@ -1,0 +1,11 @@
+{% for ns in name_servers %}
+ip name-server {{ ns }}
+{% endfor %}
+
+{% for ntp in ntp_servers %}
+ntp server {{ ntp }}
+{% endfor %}
+
+{% for s in syslog_servers %}
+logging host {{ s }}
+{% endfor %}

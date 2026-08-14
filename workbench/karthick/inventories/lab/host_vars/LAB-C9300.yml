@@ -1,0 +1,32 @@
+---
+hostname: che2as04
+domain_name: tm.toppanmerrill.com
+
+name_servers:
+  - 8.8.8.8
+  - 1.1.1.1
+
+ntp_servers:
+  - 129.6.15.28
+
+syslog_servers:
+  - 10.10.10.50
+
+vlans:
+  - id: 10
+    name: USERS
+  - id: 20
+    name: VOICE
+  - id: 30
+    name: WIFI
+
+access_ports:
+  - name: GigabitEthernet1/0/10
+    desc: USER-DESK-10
+    vlan: 10
+    spanning_tree_portfast: true
+
+trunk_ports:
+  - name: GigabitEthernet1/0/48
+    desc: UPLINK-TRUNK
+    allowed_vlans: 10,20,30

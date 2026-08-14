@@ -1,0 +1,31 @@
+---
+- name: Backup running config
+  hosts: lab_switches
+  gather_facts: false
+  tasks:
+    - name: Collect running config
+      cisco.ios.ios_command:
+        commands:
+          - show running-config
+      register: run_cfg
+
+    - name: Ensure backup folders exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ backup_root }}/latest"
+        - "{{ backup_root }}/runs/{{ run_ts }}"
+      delegate_to: localhost
+
+    - name: Write latest backup
+      ansible.builtin.copy:
+        content: "{{ run_cfg.stdout[0] }}"
+        dest: "{{ backup_root }}/latest/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
+
+    - name: Write run-scoped backup
+      ansible.builtin.copy:
+        content: "{{ run_cfg.stdout[0] }}"
+        dest: "{{ backup_root }}/runs/{{ run_ts }}/{{ inventory_hostname }}.cfg"
+      delegate_to: localhost
