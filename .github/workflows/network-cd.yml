@@ -23,6 +23,7 @@ jobs:
       SW_PASS: ${{ secrets.SW_PASS }}
       SW_ENABLE_PASS: ${{ secrets.SW_ENABLE_PASS }}
       RUN_TS: ${{ github.run_id }}
+      WSLENV: SW_USER/u:SW_PASS/u:SW_ENABLE_PASS/u:RUN_TS/u:WSL_REPO_PATH/u
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -45,35 +46,46 @@ jobs:
       - name: Ensure Ansible in WSL
         shell: powershell
         run: |
-          wsl -u root bash -lc "ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible python3-paramiko)"
-          wsl -u root bash -lc "python3 -c 'import paramiko' >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)"
+          wsl -u root bash -lc 'ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible python3-paramiko)'
+          wsl -u root bash -lc 'python3 -c "import paramiko" >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)'
+
+      - name: Validate WSL env propagation
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'python3 - <<"PY"
+import os
+missing = [k for k in ("SW_USER", "SW_PASS", "SW_ENABLE_PASS", "WSL_REPO_PATH") if not os.getenv(k)]
+if missing:
+    raise SystemExit("Missing in WSL env: " + ",".join(missing))
+print("WSL env propagation ok")
+PY'
 
       - name: Install collections
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-galaxy collection install -r requirements.yml"
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-galaxy collection install -r requirements.yml'
 
       - name: Pre-change backup
         id: pre_backup
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/backup.yml"
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/backup.yml'
 
       - name: Deploy intended config
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/deploy.yml"
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/deploy.yml'
 
       - name: Verify intended state
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/verify.yml"
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/verify.yml'
 
       - name: Rollback if verify fails
         if: failure() && steps.pre_backup.outcome == 'success'
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/rollback.yml"
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/rollback.yml'
 
       - name: Upload artifacts
         if: always()
