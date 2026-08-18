@@ -54,6 +54,7 @@ jobs:
           wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-galaxy collection install -r requirements.yml"
 
       - name: Pre-change backup
+        id: pre_backup
         shell: powershell
         run: |
           wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/backup.yml"
@@ -69,7 +70,7 @@ jobs:
           wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/verify.yml"
 
       - name: Rollback if verify fails
-        if: failure()
+        if: failure() && steps.pre_backup.outcome == 'success'
         shell: powershell
         run: |
           wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/rollback.yml"
