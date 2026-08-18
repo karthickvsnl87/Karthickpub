@@ -98,5 +98,6 @@ PY'
         with:
           name: network-artifacts-${{ github.run_id }}
           path: |
-            workbench/karthick/backups/
-            workbench/karthick/rendered/
+            ${{ github.workspace }}/workbench/karthick/backups/**
+            ${{ github.workspace }}/workbench/karthick/rendered/**
+          if-no-files-found: ignore
