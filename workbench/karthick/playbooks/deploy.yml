@@ -11,7 +11,7 @@
 
     - name: Render intended config
       ansible.builtin.template:
-        src: templates/intended_config.j2
+        src: "{{ playbook_dir }}/../templates/intended_config.j2"
         dest: "{{ rendered_dir }}/{{ inventory_hostname }}-intended.cfg"
       delegate_to: localhost
 
