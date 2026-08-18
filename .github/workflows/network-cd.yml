@@ -25,7 +25,7 @@ jobs:
       RUN_TS: ${{ github.run_id }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Validate required secrets are present
         shell: powershell
@@ -35,13 +35,12 @@ jobs:
           if ([string]::IsNullOrWhiteSpace($env:SW_ENABLE_PASS)) { throw 'SW_ENABLE_PASS is missing' }
 
       - name: Resolve workspace path in WSL
-        id: ws
         shell: powershell
         run: |
           $repoPath = Join-Path $env:GITHUB_WORKSPACE 'workbench\karthick'
           $repoPosix = ($repoPath -replace '\\', '/')
-          $wslPath = wsl wslpath -a "$repoPosix"
-          "wsl_path=$wslPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          $wslPath = (wsl wslpath -a "$repoPosix").Trim()
+          "WSL_REPO_PATH=$wslPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Ensure Ansible in WSL
         shell: powershell
@@ -52,32 +51,32 @@ jobs:
       - name: Install collections
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-galaxy collection install -r requirements.yml"
+          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-galaxy collection install -r requirements.yml"
 
       - name: Pre-change backup
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/backup.yml"
+          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/backup.yml"
 
       - name: Deploy intended config
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/deploy.yml"
+          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/deploy.yml"
 
       - name: Verify intended state
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/verify.yml"
+          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/verify.yml"
 
       - name: Rollback if verify fails
         if: failure()
         shell: powershell
         run: |
-          wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/rollback.yml"
+          wsl -u root bash -lc "cd '$env:WSL_REPO_PATH' && ANSIBLE_CONFIG='$env:WSL_REPO_PATH/ansible.cfg' ansible-playbook playbooks/rollback.yml"
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: network-artifacts-${{ github.run_id }}
           path: |
