@@ -47,8 +47,19 @@ jobs:
       - name: Ensure Ansible and Paramiko in WSL
         shell: powershell
         run: |
-          wsl -u root bash -lc 'ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible python3-paramiko)'
-          wsl -u root bash -lc 'python3 -c "import paramiko" >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)'
+          wsl -u root bash -lc 'ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible)'
+          wsl -u root bash -lc 'dpkg -s python3-paramiko >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)'
+
+      - name: Validate WSL env propagation
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'python3 - <<"PY"
+import os
+missing = [k for k in ("SW_USER", "SW_PASS", "SW_ENABLE_PASS", "WSL_REPO_PATH") if not os.getenv(k)]
+if missing:
+    raise SystemExit("Missing in WSL env: " + ",".join(missing))
+print("WSL env propagation ok")
+PY'
 
       - name: Pre-change backup
         id: pre_backup
