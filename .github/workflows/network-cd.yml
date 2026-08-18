@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate required secrets are present
-        shell: pwsh
+        shell: powershell
         run: |
           if ([string]::IsNullOrWhiteSpace($env:SW_USER)) { throw 'SW_USER is missing' }
           if ([string]::IsNullOrWhiteSpace($env:SW_PASS)) { throw 'SW_PASS is missing' }
@@ -36,7 +36,7 @@ jobs:
 
       - name: Resolve workspace path in WSL
         id: ws
-        shell: pwsh
+        shell: powershell
         run: |
           $repoPath = Join-Path $env:GITHUB_WORKSPACE 'workbench\karthick'
           $repoPosix = ($repoPath -replace '\\', '/')
@@ -44,33 +44,33 @@ jobs:
           "wsl_path=$wslPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Ensure Ansible in WSL
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible)"
 
       - name: Install collections
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-galaxy collection install -r requirements.yml"
 
       - name: Pre-change backup
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/backup.yml"
 
       - name: Deploy intended config
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/deploy.yml"
 
       - name: Verify intended state
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/verify.yml"
 
       - name: Rollback if verify fails
         if: failure()
-        shell: pwsh
+        shell: powershell
         run: |
           wsl -u root bash -lc "cd '${{ steps.ws.outputs.wsl_path }}' && ANSIBLE_CONFIG='${{ steps.ws.outputs.wsl_path }}/ansible.cfg' ansible-playbook playbooks/rollback.yml"
 
