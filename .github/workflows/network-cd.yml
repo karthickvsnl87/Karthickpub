@@ -1,6 +1,6 @@
 name: Network CD
 
-on:
+"on":
   push:
     branches: [ master, main ]
     paths:
