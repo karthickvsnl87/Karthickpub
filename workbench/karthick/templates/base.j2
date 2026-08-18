@@ -7,11 +7,11 @@ netconf-yang
 {% if enable_restconf | default(false) %}
 restconf
 {% endif %}
-{% if vty_restrict_subnet is defined and vty_restrict_subnet %}
-ip access-list standard MGMT-VTY-ALLOW
- permit {{ vty_restrict_subnet }}
- deny any log
-line vty 0 15
- access-class MGMT-VTY-ALLOW in
- transport input ssh
+{% if netconf_restrict_subnet is defined and netconf_restrict_subnet and mgmt_interface is defined and mgmt_interface %}
+ip access-list extended MGMT-NETCONF-ONLY
+ permit tcp {{ netconf_restrict_subnet }} any eq 830
+ deny tcp any any eq 830 log
+ permit ip any any
+interface {{ mgmt_interface }}
+ ip access-group MGMT-NETCONF-ONLY in
 {% endif %}

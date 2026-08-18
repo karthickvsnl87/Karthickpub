@@ -2,8 +2,9 @@
 hostname: che2as04
 domain_name: tm.toppanmerrill.com
 
-# Restrict SSH/NETCONF management sessions to the runner subnet.
-vty_restrict_subnet: 10.231.172.0 0.0.0.255
+# Restrict NETCONF (TCP 830) access on the management interface to runner subnet.
+netconf_restrict_subnet: 10.231.172.0 0.0.0.255
+mgmt_interface: GigabitEthernet0/0
 
 # Keep RESTCONF disabled unless you explicitly need API-based automation.
 enable_netconf: true
