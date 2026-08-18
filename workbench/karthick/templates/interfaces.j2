@@ -1,4 +1,4 @@
-{% for p in access_ports %}
+{% for p in access_ports | default([]) %}
 interface {{ p.name }}
  description {{ p.desc }}
  switchport mode access
@@ -10,7 +10,7 @@ interface {{ p.name }}
 {% endif %}
 {% endfor %}
 
-{% for t in trunk_ports %}
+{% for t in trunk_ports | default([]) %}
 interface {{ t.name }}
  description {{ t.desc }}
  switchport mode trunk

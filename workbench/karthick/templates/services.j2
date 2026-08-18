@@ -1,11 +1,11 @@
-{% for ns in name_servers %}
+{% for ns in name_servers | default([]) %}
 ip name-server {{ ns }}
 {% endfor %}
 
-{% for ntp in ntp_servers %}
+{% for ntp in ntp_servers | default([]) %}
 ntp server {{ ntp }}
 {% endfor %}
 
-{% for s in syslog_servers %}
+{% for s in syslog_servers | default([]) %}
 logging host {{ s }}
 {% endfor %}
