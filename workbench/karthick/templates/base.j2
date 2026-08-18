@@ -1,5 +1,17 @@
 hostname {{ hostname }}
 ip domain name {{ domain_name }}
 ip ssh version 2
+{% if enable_netconf | default(true) %}
 netconf-yang
+{% endif %}
+{% if enable_restconf | default(false) %}
 restconf
+{% endif %}
+{% if vty_restrict_subnet is defined and vty_restrict_subnet %}
+ip access-list standard MGMT-VTY-ALLOW
+ permit {{ vty_restrict_subnet }}
+ deny any log
+line vty 0 15
+ access-class MGMT-VTY-ALLOW in
+ transport input ssh
+{% endif %}

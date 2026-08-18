@@ -2,31 +2,13 @@
 hostname: che2as04
 domain_name: tm.toppanmerrill.com
 
-name_servers:
-  - 8.8.8.8
-  - 1.1.1.1
+# Restrict SSH/NETCONF management sessions to the runner subnet.
+vty_restrict_subnet: 10.231.172.0 0.0.0.255
 
-ntp_servers:
-  - 129.6.15.28
-
-syslog_servers:
-  - 10.10.10.50
+# Keep RESTCONF disabled unless you explicitly need API-based automation.
+enable_netconf: true
+enable_restconf: false
 
 vlans:
-  - id: 10
-    name: USERS
-  - id: 20
-    name: VOICE
-  - id: 30
-    name: WIFI
-
-access_ports:
-  - name: GigabitEthernet1/0/10
-    desc: USER-DESK-10
-    vlan: 10
-    spanning_tree_portfast: true
-
-trunk_ports:
-  - name: GigabitEthernet1/0/48
-    desc: UPLINK-TRUNK
-    allowed_vlans: 10,20,30
+  - id: 555
+    name: TEST-AUTOMATION
