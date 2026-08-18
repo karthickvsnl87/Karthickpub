@@ -46,7 +46,8 @@ jobs:
       - name: Ensure Ansible in WSL
         shell: powershell
         run: |
-          wsl -u root bash -lc "ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible)"
+          wsl -u root bash -lc "ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible python3-paramiko)"
+          wsl -u root bash -lc "python3 -c 'import paramiko' >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)"
 
       - name: Install collections
         shell: powershell
