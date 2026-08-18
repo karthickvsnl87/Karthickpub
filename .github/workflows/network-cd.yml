@@ -6,6 +6,11 @@ on:
     paths:
       - workbench/karthick/**
   workflow_dispatch:
+    inputs:
+      reason:
+        description: Manual deployment reason
+        required: false
+        default: manual run
 
 permissions:
   contents: read
