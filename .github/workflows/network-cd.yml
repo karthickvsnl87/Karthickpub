@@ -31,7 +31,7 @@ jobs:
       WSLENV: SW_USER/u:SW_PASS/u:SW_ENABLE_PASS/u:RUN_TS/u:WSL_REPO_PATH/u
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Validate required secrets are present
         shell: powershell
