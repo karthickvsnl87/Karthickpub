@@ -1,0 +1,83 @@
+name: Network Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: Manual deployment reason
+        required: false
+        default: manual run
+
+permissions:
+  contents: read
+
+concurrency:
+  group: network-cd-switch
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, windows, netops-lab]
+    environment: lab-switch-change
+    env:
+      SW_USER: ${{ secrets.SW_USER }}
+      SW_PASS: ${{ secrets.SW_PASS }}
+      SW_ENABLE_PASS: ${{ secrets.SW_ENABLE_PASS }}
+      RUN_TS: ${{ github.run_id }}
+      WSLENV: SW_USER/u:SW_PASS/u:SW_ENABLE_PASS/u:RUN_TS/u:WSL_REPO_PATH/u
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate required secrets are present
+        shell: powershell
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SW_USER)) { throw 'SW_USER is missing' }
+          if ([string]::IsNullOrWhiteSpace($env:SW_PASS)) { throw 'SW_PASS is missing' }
+          if ([string]::IsNullOrWhiteSpace($env:SW_ENABLE_PASS)) { throw 'SW_ENABLE_PASS is missing' }
+
+      - name: Resolve workspace path in WSL
+        shell: powershell
+        run: |
+          $repoPath = Join-Path $env:GITHUB_WORKSPACE 'workbench\karthick'
+          $repoPosix = ($repoPath -replace '\\', '/')
+          $wslPath = (wsl wslpath -a "$repoPosix").Trim()
+          "WSL_REPO_PATH=$wslPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Ensure Ansible and Paramiko in WSL
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'ansible --version >/dev/null 2>&1 || (apt-get update && apt-get install -y ansible python3-paramiko)'
+          wsl -u root bash -lc 'python3 -c "import paramiko" >/dev/null 2>&1 || (apt-get update && apt-get install -y python3-paramiko)'
+
+      - name: Pre-change backup
+        id: pre_backup
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-galaxy collection install -r requirements.yml'
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/backup.yml'
+
+      - name: Deploy intended config
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/deploy.yml'
+
+      - name: Verify intended state
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/verify.yml'
+
+      - name: Rollback if verify fails
+        if: failure() && steps.pre_backup.outcome == 'success'
+        shell: powershell
+        run: |
+          wsl -u root bash -lc 'cd "$WSL_REPO_PATH" && ANSIBLE_CONFIG="$WSL_REPO_PATH/ansible.cfg" ansible-playbook playbooks/rollback.yml'
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: network-artifacts-${{ github.run_id }}
+          path: |
+            workbench/karthick/backups/
+            workbench/karthick/rendered/
