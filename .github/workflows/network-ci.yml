@@ -2,7 +2,7 @@ name: Network CI
 
 on:
   pull_request:
-    branches: [ master, main ]
+    branches: [master,main]
     paths:
       - workbench/karthick/**
 

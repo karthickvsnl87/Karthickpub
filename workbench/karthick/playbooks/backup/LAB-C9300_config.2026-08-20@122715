@@ -1,0 +1,1300 @@
+Building configuration...
+
+Current configuration : 35433 bytes
+!
+! Last configuration change at 21:50:23 IST Wed Aug 19 2026 by svc_NetMRI
+! NVRAM config last updated at 21:50:24 IST Wed Aug 19 2026 by svc_NetMRI
+!
+version 17.12
+service nagle
+service tcp-keepalives-in
+service tcp-keepalives-out
+service timestamps debug datetime msec localtime show-timezone
+service timestamps log datetime msec localtime show-timezone
+service password-encryption
+service internal
+service counters max age 10
+service call-home
+no platform punt-keepalive disable-kernel-core
+!
+hostname che2as04
+!
+!
+vrf definition Mgmt-vrf
+ !
+ address-family ipv4
+ exit-address-family
+ !
+ address-family ipv6
+ exit-address-family
+!
+logging buffered 16000
+no logging console
+aaa new-model
+!
+!
+aaa group server tacacs+ TM
+ server-private 10.224.1.55 key 6 XLMbRY_CEJ_WFf]KF]fIZgQR_HPF^S`EBTECKOY
+ server-private 10.231.160.55 key 6 QaP_QgEEdGZbDDAT]igN\ST_FiQAdH_AYJNBKbN
+!
+aaa group server radius ISE-NODES
+ server name chi4ise1
+ server name che1ise1
+ deadtime 5
+!
+aaa authentication fail-message ^CCC
+ 
+ 
+AUTHENTICATION FAILED.b
+/ VERIFY YOU ARE USING CORRECT CREDENTIALS.
+ 
+ 
+^C
+aaa authentication login default group TM local
+aaa authentication login console none
+aaa authentication enable default group TM enable
+aaa authentication dot1x default group ISE-NODES
+aaa authorization exec default group TM local 
+aaa authorization commands 0 default group TM local 
+aaa authorization commands 1 default group TM local 
+aaa authorization commands 15 default group TM local 
+aaa authorization network default group ISE-NODES 
+aaa authorization network AuthZ-List group ISE-NODES 
+aaa accounting identity default start-stop group ISE-NODES
+aaa accounting exec default start-stop group TM
+aaa accounting commands 15 default start-stop group TM
+aaa accounting network default start-stop group TM
+aaa accounting connection default start-stop group TM
+aaa accounting system default start-stop group TM
+!
+!
+aaa server radius dynamic-author
+ client 10.224.1.55 server-key 6 DgWJbQ\XcNebF_XK_[M^UWVecbCPJZDTUV\`DIF
+ client 10.231.160.55 server-key 6 \`hEX_CJeID^eBQWR]XFT]DBGeWI`SfWLQYNBbg
+!
+aaa session-id common
+clock timezone IST 5 30
+switch 1 provision c9300x-48tx
+switch 2 provision c9300x-48tx
+!
+!
+!
+!
+ip routing
+!
+ip name-server 10.231.161.75 10.231.175.60 10.224.1.187
+ip domain name tm.toppanmerrill.com
+!
+!
+!
+login on-success log
+udld enable
+
+vtp domain Office_LAN
+vtp mode transparent
+!
+!
+!
+!
+!
+!
+!
+authentication critical recovery delay 1000
+access-session mac-move deny
+password encryption aes
+!
+crypto pki trustpoint SLA-TrustPoint
+ enrollment pkcs12
+ revocation-check crl
+ hash sha256
+!
+crypto pki trustpoint TP-self-signed-3530705552
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3530705552
+ revocation-check none
+ rsakeypair TP-self-signed-3530705552
+ hash sha256
+!
+!
+crypto pki certificate chain SLA-TrustPoint
+ certificate ca 01
+  30820321 30820209 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030 
+  32310E30 0C060355 040A1305 43697363 6F312030 1E060355 04031317 43697363 
+  6F204C69 63656E73 696E6720 526F6F74 20434130 1E170D31 33303533 30313934 
+  3834375A 170D3338 30353330 31393438 34375A30 32310E30 0C060355 040A1305 
+  43697363 6F312030 1E060355 04031317 43697363 6F204C69 63656E73 696E6720 
+  526F6F74 20434130 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 
+  82010A02 82010100 A6BCBD96 131E05F7 145EA72C 2CD686E6 17222EA1 F1EFF64D 
+  CBB4C798 212AA147 C655D8D7 9471380D 8711441E 1AAF071A 9CAE6388 8A38E520 
+  1C394D78 462EF239 C659F715 B98C0A59 5BBB5CBD 0CFEBEA3 700A8BF7 D8F256EE 
+  4AA4E80D DB6FD1C9 60B1FD18 FFC69C96 6FA68957 A2617DE7 104FDC5F EA2956AC 
+  7390A3EB 2B5436AD C847A2C5 DAB553EB 69A9A535 58E9F3E3 C0BD23CF 58BD7188 
+  68E69491 20F320E7 948E71D7 AE3BCC84 F10684C7 4BC8E00F 539BA42B 42C68BB7 
+  C7479096 B4CB2D62 EA2F505D C7B062A4 6811D95B E8250FC4 5D5D5FB8 8F27D191 
+  C55F0D76 61F9A4CD 3D992327 A8BB03BD 4E6D7069 7CBADF8B DF5F4368 95135E44 
+  DFC7C6CF 04DD7FD1 02030100 01A34230 40300E06 03551D0F 0101FF04 04030201 
+  06300F06 03551D13 0101FF04 05300301 01FF301D 0603551D 0E041604 1449DC85 
+  4B3D31E5 1B3E6A17 606AF333 3D3B4C73 E8300D06 092A8648 86F70D01 010B0500 
+  03820101 00507F24 D3932A66 86025D9F E838AE5C 6D4DF6B0 49631C78 240DA905 
+  604EDCDE FF4FED2B 77FC460E CD636FDB DD44681E 3A5673AB 9093D3B1 6C9E3D8B 
+  D98987BF E40CBD9E 1AECA0C2 2189BB5C 8FA85686 CD98B646 5575B146 8DFC66A8 
+  467A3DF4 4D565700 6ADF0F0D CF835015 3C04FF7C 21E878AC 11BA9CD2 55A9232C 
+  7CA7B7E6 C1AF74F6 152E99B7 B1FCF9BB E973DE7F 5BDDEB86 C71E3B49 1765308B 
+  5FB0DA06 B92AFE7F 494E8A9E 07B85737 F3A58BE1 1A48A229 C37C1E69 39F08678 
+  80DDCD16 D6BACECA EEBC7CF9 8428787B 35202CDC 60E4616A B623CDBD 230E3AFB 
+  418616A9 4093E049 4D10AB75 27E86F73 932E35B5 8862FDAE 0275156F 719BB2F0 
+  D697DF7F 28
+  	quit
+crypto pki certificate chain TP-self-signed-3530705552
+ certificate self-signed 01
+  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030 
+  31312F30 2D060355 04030C26 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33353330 37303535 3532301E 170D3235 30323139 31333332 
+  32385A17 0D333530 32313931 33333232 385A3031 312F302D 06035504 030C2649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 35333037 
+  30353535 32308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201 
+  0A028201 0100C1A1 AC144839 061CBEA9 73CD61EA C7ADDD89 CD5E0294 0F0A1B9A 
+  2F0F4D03 EA6AFBB0 4C64F559 BCF25D8D CD58D130 5D9BE3F5 180B259B D649CB86 
+  A25506CE C9885CB3 1169CA06 D5BB6124 ECD24A1F 28318391 E9595E06 53041DE9 
+  B00D11D2 9796D378 D0803368 1B96ED58 6C9C8FC9 3983923F 3414865C 7E3A9259 
+  DE2DFA8E 6A1703D0 4A315464 D90B2423 6BC4FF0A ABFD2709 B0AFEA8C 3EE12F52 
+  65CF4FF1 F1D0CE7A A25A7074 ACF5D7D4 B2E674A8 73000D4A 5DCE4EA4 5241A550 
+  5B331C62 C405E042 C57C78D0 214440EE 5CE57734 D6DE5ADF 76533657 529848CC 
+  AB2DC54E 6FA7D3EE 01192B0C 22496C00 15C3121C C420D737 48EBEC0D E802DB55 
+  B690471F 0B190203 010001A3 53305130 1D060355 1D0E0416 04148B71 B407444B 
+  86E7B2D1 319E9D94 72A37E24 E080301F 0603551D 23041830 1680148B 71B40744 
+  4B86E7B2 D1319E9D 9472A37E 24E08030 0F060355 1D130101 FF040530 030101FF 
+  300D0609 2A864886 F70D0101 0B050003 82010100 3E70D880 1F5C4F97 8FA26BEF 
+  6D39A30B 0FCE3645 5D143927 EB9FFECB FFA766C4 3B61F78C 18D40828 F6EC67AD 
+  1D79E5D2 78804627 95FEA844 0DB62FEC 4D842B9A 47065095 5FDE6CD9 439062B4 
+  3392CA7E 2EE65358 7822ACB7 F5950999 9ACE82E4 2DD65624 C5CED810 DDAA838B 
+  E41BC39E CE61E01F E7145E20 A4EAB353 24C56337 1D505C89 F0786E94 3EA83E68 
+  53D229D7 01A2B0D8 2A70B33B 97F74670 32C5D0AD 5BC21D56 C988991C 18AF4FEF 
+  29832519 0C722F3B 06E5EB28 FE6F3459 CF34A044 08FA42BF 6B406349 59F5B537 
+  25FB5F56 1BF0D227 776517F2 499CB7F6 8F85221A 11E9544E B260EAFA 96DBF63F 
+  6F7761A9 16160DE9 AE923C3B 6F5A2FF8 E4DB5388
+  	quit
+!
+crypto pki certificate pool
+ cabundle nvram:ios_core.p7b
+!
+!
+license boot level network-advantage
+service-template DEFAULT_LINKSEC_POLICY_MUST_SECURE
+ linksec policy must-secure
+service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+ linksec policy should-secure
+service-template DEFAULT_CRITICAL_VOICE_TEMPLATE
+ voice vlan
+service-template DEFAULT_CRITICAL_DATA_TEMPLATE
+service-template webauth-global-inactive
+ inactivity-timer 3600 
+service-template CRITICAL_AUTH_ACCESS
+ access-group ACL-OPEN
+ vlan 101
+service-template CRITICAL
+ access-group ACL-OPEN
+dot1x system-auth-control
+dot1x critical eapol
+memory free low-watermark processor 130180
+!
+diagnostic bootup level minimal
+!
+spanning-tree mode rapid-pvst
+spanning-tree portfast default
+spanning-tree portfast bpduguard default
+spanning-tree extend system-id
+spanning-tree vlan 10,50-51,60,100-101,701 priority 8192
+!
+!
+lacp system-priority 25
+!
+enable secret 9 $9$JGB8.8Y/L6Ux3E$0c4lJzWJfoOZUVdOazvukadtxOzCmW9qoOktxf/iwn2
+!
+username netserve privilege 15 secret 9 $9$LPtuoAHNg6.x/k$/ENiF2vNj9IqAmlinr9isbRTb4DJOvfpigIvmhe9fPM
+!
+redundancy
+ mode sso
+crypto engine compliance shield disable
+!
+!
+!
+!
+!
+transceiver type all
+ monitoring
+!
+!
+vlan 10
+ name Avaya_Voice_Ip_Vlan
+!
+vlan 50
+ name Security
+!
+vlan 51
+ name Meraki-AP-MGMT
+!
+vlan 60
+ name N/W_LAN_segment
+!
+vlan 100
+ name Management
+!
+vlan 101
+ name OTP_User_Vlan
+!
+vlan 555
+ name TEST-AUTOMATION
+!
+vlan 556
+ name TEST-AUTOMATION-2
+!
+vlan 701
+ name Merrill-ExternalWIFI
+!
+class-map type control subscriber match-all AAA_SVR_DOWN_AUTHD_HOST
+ match result-type aaa-timeout
+ match authorization-status authorized
+!
+class-map type control subscriber match-all AAA_SVR_DOWN_UNAUTHD_HOST
+ match result-type aaa-timeout
+ match authorization-status unauthorized
+!
+class-map type control subscriber match-all AUTHC_SUCCESS-AUTHZ_FAIL
+ match authorization-status unauthorized
+ match result-type success
+!
+class-map type control subscriber match-all DOT1X
+ match method dot1x
+!
+class-map type control subscriber match-all DOT1X_FAILED
+ match method dot1x
+ match result-type method dot1x authoritative
+!
+class-map type control subscriber match-all DOT1X_NO_RESP
+ match method dot1x
+ match result-type method dot1x agent-not-found
+!
+class-map type control subscriber match-all DOT1X_TIMEOUT
+ match method dot1x
+ match result-type method dot1x method-timeout
+ match result-type method-timeout
+!
+class-map type control subscriber match-any IN_CRITICAL_AUTH
+ match activated-service-template CRITICAL_AUTH_ACCESS
+!
+class-map type control subscriber match-all MAB
+ match method mab
+!
+class-map type control subscriber match-all MAB_FAILED
+ match method mab
+ match result-type method mab authoritative
+!
+class-map type control subscriber match-none NOT_IN_CRITICAL_AUTH
+ match activated-service-template CRITICAL_AUTH_ACCESS
+!
+!
+class-map match-any system-cpp-police-ewlc-control
+  description EWLC Control 
+class-map match-any system-cpp-police-topology-control
+  description Topology control
+class-map match-any system-cpp-police-sw-forward
+  description Sw forwarding, L2 LVX data packets, LOGGING, Transit Traffic
+class-map match-any system-cpp-default
+  description EWLC Data, Inter FED Traffic 
+class-map match-any system-cpp-police-sys-data
+  description Openflow, Exception, EGR Exception, NFL Sampled Data, RPF Failed
+class-map match-any system-cpp-police-punt-webauth
+  description Punt Webauth
+class-map match-any system-cpp-police-l2lvx-control
+  description L2 LVX control packets
+class-map match-any system-cpp-police-forus
+  description Forus Address resolution and Forus traffic
+class-map match-any system-cpp-police-multicast-end-station
+  description MCAST END STATION
+class-map match-any system-cpp-police-high-rate-app
+  description High Rate Applications 
+class-map match-any system-cpp-police-multicast
+  description MCAST Data
+class-map match-any system-cpp-police-l2-control
+  description L2 control
+class-map match-any system-cpp-police-dot1x-auth
+  description DOT1X Auth
+class-map match-any system-cpp-police-data
+  description ICMP redirect, ICMP_GEN and BROADCAST
+class-map match-any system-cpp-police-stackwise-virt-control
+  description Stackwise Virtual OOB
+class-map match-any non-client-nrt-class
+class-map match-any system-cpp-police-routing-control
+  description Routing control and Low Latency
+class-map match-any system-cpp-police-protocol-snooping
+  description Protocol snooping
+class-map match-any system-cpp-police-dhcp-snooping
+  description DHCP snooping
+class-map match-any system-cpp-police-ios-routing
+  description L2 control, Topology control, Routing control, Low Latency
+class-map match-any system-cpp-police-system-critical
+  description System Critical and Gold Pkt
+class-map match-any system-cpp-police-ios-feature
+  description ICMPGEN,BROADCAST,ICMP,L2LVXCntrl,ProtoSnoop,PuntWebauth,MCASTData,Transit,DOT1XAuth,Swfwd,LOGGING,L2LVXData,ForusTraffic,ForusARP,McastEndStn,Openflow,Exception,EGRExcption,NflSampled,RpfFailed
+!
+!
+policy-map type control subscriber DOT1X_MAB_POLICY
+ event session-started match-all
+  10 class always do-until-failure
+   10 authenticate using dot1x priority 10
+ event authentication-failure match-first
+  5 class DOT1X_FAILED do-until-failure
+   10 terminate dot1x
+   20 authenticate using mab priority 20
+  10 class AAA_SVR_DOWN_UNAUTHD_HOST do-until-failure
+   10 clear-authenticated-data-hosts-on-port
+   20 activate service-template CRITICAL_AUTH_ACCESS
+   40 authorize
+   50 pause reauthentication
+  20 class AAA_SVR_DOWN_AUTHD_HOST do-until-failure
+   10 pause reauthentication
+   20 authorize
+  30 class DOT1X_NO_RESP do-until-failure
+   10 terminate dot1x
+   20 authenticate using mab priority 20
+  40 class DOT1X_TIMEOUT do-until-failure
+   10 terminate dot1x
+   20 authenticate using mab priority 20
+  50 class MAB_FAILED do-until-failure
+   10 terminate mab
+   20 authentication-restart 60
+  60 class always do-until-failure
+   10 terminate dot1x
+   20 terminate mab
+   30 authentication-restart 60
+ event agent-found match-all
+  10 class always do-until-failure
+   10 terminate mab
+   20 authenticate using dot1x priority 10
+ event aaa-available match-all
+  10 class IN_CRITICAL_AUTH do-until-failure
+   10 clear-session
+  20 class NOT_IN_CRITICAL_AUTH do-until-failure
+   10 resume reauthentication
+ event inactivity-timeout match-all
+  10 class always do-until-failure
+   10 clear-session
+ event authentication-success match-all
+  10 class always do-until-failure
+   10 activate service-template DEFAULT_LINKSEC_POLICY_SHOULD_SECURE
+ event violation match-all
+  10 class always do-until-failure
+   10 restrict
+ event authorization-failure match-all
+  10 class AUTHC_SUCCESS-AUTHZ_FAIL do-until-failure
+   10 authentication-restart 60
+!
+policy-map system-cpp-policy
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+template WIRED_DOT1X_CLOSED
+ dot1x pae authenticator
+ dot1x timeout tx-period 7
+ mab
+ access-session closed
+ access-session port-control auto
+ authentication periodic
+ authentication timer reauthenticate server
+ service-policy type control subscriber DOT1X_MAB_POLICY
+!
+template WIRED_DOT1X_OPEN
+ dot1x pae authenticator
+ dot1x timeout tx-period 7
+ mab
+ access-session port-control auto
+ authentication periodic
+ authentication timer reauthenticate server
+ service-policy type control subscriber DOT1X_MAB_POLICY
+!
+!
+interface Loopback0
+ no ip address
+!
+interface Port-channel24
+ description *CRITICAL* Link to CHE2AS03 Ten1/1/7 Ten1/1/8
+ switchport trunk allowed vlan 50,51,60,101,184,701
+ switchport mode trunk
+!
+interface GigabitEthernet0/0
+ vrf forwarding Mgmt-vrf
+ no ip address
+ shutdown
+ negotiation auto
+!
+interface TenGigabitEthernet1/0/1
+ description VoIP & Data
+ switchport access vlan 107
+ switchport mode access
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/2
+ description VoIP & Data
+ switchport access vlan 107
+ switchport mode access
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/3
+ description VoIP & Data
+ switchport access vlan 107
+ switchport mode access
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/4
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/5
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/6
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/7
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/8
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/9
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/10
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/11
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/12
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/13
+ description VoIP & Data
+ switchport access vlan 101
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/14
+ description VoIP & Data
+ switchport access vlan 701
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/15
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/16
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/17
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/18
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/19
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/20
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/21
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/22
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/23
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/24
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/25
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/26
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/27
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/28
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/29
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/30
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/31
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/32
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/33
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/34
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/35
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/36
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/37
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/38
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/39
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/40
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/41
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/42
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/43
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/44
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/45
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/46
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/47
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/0/48
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet1/1/1
+!
+interface TenGigabitEthernet1/1/2
+!
+interface TenGigabitEthernet1/1/3
+!
+interface TenGigabitEthernet1/1/4
+!
+interface TenGigabitEthernet1/1/5
+!
+interface TenGigabitEthernet1/1/6
+!
+interface TenGigabitEthernet1/1/7
+!
+interface TenGigabitEthernet1/1/8
+!
+interface TwentyFiveGigE1/1/1
+!
+interface TwentyFiveGigE1/1/2
+!
+interface TwentyFiveGigE1/1/3
+!
+interface TwentyFiveGigE1/1/4
+!
+interface TwentyFiveGigE1/1/5
+!
+interface TwentyFiveGigE1/1/6
+!
+interface TwentyFiveGigE1/1/7
+ description *CRITICAL* Link to CHE2BBA Te1/0/30
+ switchport trunk allowed vlan 50,51,60,101,184,701
+ switchport mode trunk
+ channel-group 24 mode active
+!
+interface TwentyFiveGigE1/1/8
+!
+interface TwentyFiveGigE1/1/9
+!
+interface TwentyFiveGigE1/1/10
+!
+interface TwentyFiveGigE1/1/11
+!
+interface TwentyFiveGigE1/1/12
+!
+interface TwentyFiveGigE1/1/13
+!
+interface TwentyFiveGigE1/1/14
+!
+interface TwentyFiveGigE1/1/15
+!
+interface TwentyFiveGigE1/1/16
+!
+interface HundredGigE1/1/1
+!
+interface HundredGigE1/1/2
+!
+interface HundredGigE1/1/3
+!
+interface HundredGigE1/1/4
+!
+interface AppGigabitEthernet1/0/1
+!
+interface AppGigabitEthernet1/0/2
+!
+interface TenGigabitEthernet2/0/1
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/2
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/3
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/4
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/5
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/6
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/7
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/8
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/9
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/10
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/11
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/12
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/13
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/14
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/15
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/16
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/17
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/18
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/19
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/20
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/21
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/22
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/23
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/24
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/25
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/26
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/27
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/28
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/29
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/30
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/31
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/32
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/33
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/34
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/35
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/36
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/37
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/38
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/39
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/40
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/41
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/42
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/43
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/44
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/45
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/46
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/47
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/0/48
+ description VoIP & Data
+ switchport mode access
+ source template WIRED_DOT1X_OPEN
+ spanning-tree portfast
+!
+interface TenGigabitEthernet2/1/1
+!
+interface TenGigabitEthernet2/1/2
+!
+interface TenGigabitEthernet2/1/3
+!
+interface TenGigabitEthernet2/1/4
+!
+interface TenGigabitEthernet2/1/5
+!
+interface TenGigabitEthernet2/1/6
+ switchport trunk allowed vlan 10,50,51,60,100,101,701
+ switchport mode trunk
+!
+interface TenGigabitEthernet2/1/7
+!
+interface TenGigabitEthernet2/1/8
+!
+interface TwentyFiveGigE2/1/1
+!
+interface TwentyFiveGigE2/1/2
+!
+interface TwentyFiveGigE2/1/3
+!
+interface TwentyFiveGigE2/1/4
+!
+interface TwentyFiveGigE2/1/5
+!
+interface TwentyFiveGigE2/1/6
+!
+interface TwentyFiveGigE2/1/7
+ description *CRITICAL* Link to CHE2BBA Te2/0/30
+ switchport trunk allowed vlan 50,51,60,101,184,701
+ switchport mode trunk
+ channel-group 24 mode active
+!
+interface TwentyFiveGigE2/1/8
+!
+interface TwentyFiveGigE2/1/9
+!
+interface TwentyFiveGigE2/1/10
+!
+interface TwentyFiveGigE2/1/11
+!
+interface TwentyFiveGigE2/1/12
+!
+interface TwentyFiveGigE2/1/13
+!
+interface TwentyFiveGigE2/1/14
+!
+interface TwentyFiveGigE2/1/15
+!
+interface TwentyFiveGigE2/1/16
+!
+interface HundredGigE2/1/1
+!
+interface HundredGigE2/1/2
+!
+interface HundredGigE2/1/3
+!
+interface HundredGigE2/1/4
+!
+interface AppGigabitEthernet2/0/1
+!
+interface AppGigabitEthernet2/0/2
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan60
+ description che2as04
+ ip address 10.254.171.11 255.255.255.0 secondary
+ ip address 10.254.171.243 255.255.255.128
+ no ip redirects
+ no ip proxy-arp
+!
+ip default-gateway 10.254.171.254
+ip forward-protocol nd
+no ip http server
+ip http authentication local
+no ip http secure-server
+ip http client source-interface Vlan60
+ip ftp username nwsftp
+ip ftp password 7 113A1C17011B080940
+ip route 0.0.0.0 0.0.0.0 10.231.160.254
+ip route 0.0.0.0 0.0.0.0 Vlan60 10.254.171.254
+ip ssh bulk-mode 131072
+ip ssh server algorithm mac hmac-sha2-256-etm@openssh.com hmac-sha2-512-etm@openssh.com hmac-sha2-256 hmac-sha2-512
+ip ssh server algorithm encryption aes128-gcm@openssh.com aes256-gcm@openssh.com aes128-gcm aes256-gcm aes128-ctr aes192-ctr aes256-ctr
+ip scp server enable
+!
+!
+ip access-list extended ACL-OPEN
+ 10 permit ip any any
+!
+logging trap debugging
+logging host 10.252.1.34
+logging host 10.231.161.160
+logging host 10.224.8.236
+ip access-list standard 2
+ 10 permit 10.231.0.0 0.0.255.255
+ 20 permit 10.230.0.0 0.0.255.255
+ 30 permit 10.229.0.0 0.0.255.255
+ 40 permit 10.252.0.0 0.0.255.255
+ 50 permit 10.106.0.0 0.0.255.255
+ 60 permit 10.228.0.0 0.0.255.255
+ 70 permit 10.224.0.0 0.0.255.255
+ 80 permit 10.226.0.0 0.0.255.255
+ 90 deny   any log
+!
+snmp-server view NO_BAD_SNMP iso included
+snmp-server view NO_BAD_SNMP internet included
+snmp-server view NO_BAD_SNMP mib-2.34.9 excluded
+snmp-server view NO_BAD_SNMP ciscoMgmt.130 excluded
+snmp-server view NO_BAD_SNMP ciscoMgmt.254 excluded
+snmp-server view NO_BAD_SNMP ciscoExperiment.997 excluded
+snmp-server community sp0cksbra1n view NO_BAD_SNMP RO 2
+snmp-server trap-source Loopback0
+snmp-server source-interface informs Loopback0
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps flowmon
+snmp-server enable traps tty
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps bfd
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps config-ctid
+snmp-server enable traps entity
+snmp-server enable traps flash insertion
+snmp-server enable traps flash removal
+snmp-server enable traps cpu threshold
+snmp-server enable traps syslog
+snmp-server enable traps event-manager
+snmp-server enable traps ipmulticast
+snmp-server enable traps pim neighbor-change rp-mapping-change invalid-pim-message
+snmp-server enable traps bgp
+snmp-server enable traps hsrp
+snmp-server enable traps cef resource-failure peer-state-change peer-fib-state-change inconsistency
+snmp-server enable traps vrfmib vrf-up vrf-down vnet-trunk-up vnet-trunk-down
+snmp-server host 10.252.1.34 version 2c sp0cksbra1n 
+snmp-server manager
+!
+radius-server attribute 6 on-for-login-auth
+radius-server attribute 6 support-multiple
+radius-server attribute 8 include-in-access-req
+radius-server attribute 25 access-request include
+radius-server attribute 31 mac format ietf upper-case
+radius-server attribute 31 send nas-port-detail mac-only
+radius-server dead-criteria time 5 tries 3
+!
+radius server chi4ise1
+ address ipv4 10.224.1.55 auth-port 1812 acct-port 1813
+ timeout 5
+ retransmit 3
+ pac key 6 YJZeCKTK\^RCUQRWedTP^NPFMCE`ZHEeNF]KIcG
+!
+radius server che1ise1
+ address ipv4 10.231.160.55 auth-port 1812 acct-port 1813
+ timeout 5
+ retransmit 3
+ pac key 6 MhPUfKfHFVQ^RVOfJXGhbcUUGHdRfdgb]eLAXfM
+!
+!
+!
+control-plane
+ service-policy input system-cpp-policy
+!
+!
+privilege exec level 7 ping
+banner login ^CC
+Security Warning and Disclaimer
+This computer system, including all related equipment and networks are
+provided only for authorized use. Unauthorized use may subject you to
+criminal prosecution. All information, including personal information
+placed on or sent over this system may be monitored. If you are not
+authorized to access this system, DISCONNECT NOW! All attack attempts
+will be prosecuted and All connections are logged.
+^C
+configuration mode exclusive
+!
+line con 0
+ exec-timeout 0 0
+ transport preferred none
+ transport output none
+ stopbits 1
+line vty 0 4
+ access-class 2 in vrf-also
+ exec-timeout 30 0
+ length 0
+ transport input ssh
+line vty 5 15
+ access-class 2 in vrf-also
+ exec-timeout 30 0
+ length 0
+ transport input ssh
+line vty 16 31
+ access-class 2 in vrf-also
+ transport input ssh
+!
+call-home
+ ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
+ ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
+ contact-email-addr sch-smart-licensing@cisco.com
+ profile "CiscoTAC-1"
+  active
+  destination transport-method http
+ntp server time.tm.toppanmerrill.com
+!
+!
+!
+!
+!
+netconf-yang
+end
