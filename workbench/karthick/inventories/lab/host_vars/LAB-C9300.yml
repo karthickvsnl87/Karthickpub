@@ -9,3 +9,6 @@ enable_restconf: false
 vlans:
   - id: 555
     name: TEST-AUTOMATION
+  - id: 556
+    name: TEST-AUTOMATION-2
+  
